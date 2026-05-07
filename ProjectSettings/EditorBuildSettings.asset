@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Victor/Start.unity
     guid: 18ead41803d4a474d93f4a7d710a3961
   - enabled: 1
+    path: Assets/Victor/Contexto.unity
+    guid: f9640f3b0183025439fcddfab8eeb342
+  - enabled: 1
     path: Assets/Victor/Mapa.unity
     guid: 66523bc5a6a71db42afa3caa612d777e
   m_configObjects:
