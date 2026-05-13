@@ -42,18 +42,22 @@ public class EnemyStatus : MonoBehaviour, IShootable
             Quaternion.identity
         );
 
-        // garante que aparece antes de qualquer coisa
-        blood.transform.position = hitPoint;
+        // IMPORTANTE: não herda rotação bugada
+        blood.transform.rotation = Quaternion.identity;
 
-        // NÃO deixa herdar rotação nem escala bugada
+        // deixa no mundo (não some ao mover inimigo)
         blood.transform.SetParent(null);
 
-        // força o Particle System a tocar
+        // força posição exata do impacto
+        blood.transform.position = hitPoint;
+
         ParticleSystem ps = blood.GetComponent<ParticleSystem>();
+
         if (ps != null)
         {
             ps.Play();
-            Destroy(blood, ps.main.duration);
+
+            Destroy(blood, ps.main.duration + ps.main.startLifetime.constantMax);
         }
         else
         {
