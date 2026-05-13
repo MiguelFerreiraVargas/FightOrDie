@@ -17,6 +17,7 @@ public class EnemyStatus : MonoBehaviour, IShootable
 
     [Header("Efeitos")]
     [SerializeField] private GameObject bloodEffect;
+    [SerializeField] private float bloodSize = 2f;
 
     [Header("UI")]
     [SerializeField] private GameObject defeatScreen;
@@ -52,6 +53,7 @@ public class EnemyStatus : MonoBehaviour, IShootable
         float distance =
             Vector3.Distance(transform.position, player.position);
 
+        // Detecta o player
         if (distance <= followDistance)
             hasSeenPlayer = true;
 
@@ -120,6 +122,10 @@ public class EnemyStatus : MonoBehaviour, IShootable
             rotation
         );
 
+        // Tamanho do sangue
+        blood.transform.localScale =
+            Vector3.one * bloodSize;
+
         // Faz acompanhar o inimigo
         blood.transform.SetParent(transform);
 
@@ -155,6 +161,7 @@ public class EnemyStatus : MonoBehaviour, IShootable
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
+        // Cooldown entre ataques
         if (Time.time < lastAttackTime + attackCooldown)
             return;
 
