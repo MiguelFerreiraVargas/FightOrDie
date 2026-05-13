@@ -1,131 +1,153 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class EnemyStatus : MonoBehaviour, IShootable
 {
     [Header("Vida")]
-    [SerializeField] private float _lifeMax = 2;
-    private float _currentLife;
+    [SerializeField] private float lifeMax = 2f;
+    private float currentLife;
 
-    [Header("Efeito")]
-    [SerializeField] private GameObject _bloodEffect;
-
-    [Header("Perseguição")]
-    [SerializeField] private float _followDistance = 10f;
-    [SerializeField] private float _speed = 3f;
+    [Header("Movimento")]
+    [SerializeField] private float followDistance = 10f;
+    [SerializeField] private float speed = 3f;
+    [SerializeField] private float rotationSpeed = 5f;
 
     [Header("Ataque")]
-    [SerializeField] private float _knockbackForce = 7f;
-    [SerializeField] private float _attackCooldown = 1f;
+    [SerializeField] private float knockbackForce = 7f;
+    [SerializeField] private float attackCooldown = 1f;
 
-    [Header("Derrota")]
-    [SerializeField] private GameObject _defeatScreen;
+    [Header("Efeitos")]
+    [SerializeField] private GameObject bloodEffect;
 
-    private Transform _player;
-    private Rigidbody _playerRb;
+    [Header("UI")]
+    [SerializeField] private GameObject defeatScreen;
 
-    private float _lastAttackTime;
+    private Transform player;
+    private Rigidbody playerRb;
 
-    private static int _playerHits = 0;
+    private bool hasSeenPlayer;
+    private float lastAttackTime;
 
-    // Depois que vê o player uma vez,
-    // segue para sempre
-    private bool _hasSeenPlayer = false;
-
-    public void Hitted(float damage, Vector3 hitPoint)
-    {
-        _currentLife -= damage;
-
-        GameObject blood = Instantiate(
-            _bloodEffect,
-            hitPoint,
-            Quaternion.identity
-        );
-
-        // IMPORTANTE: não herda rotação bugada
-        blood.transform.rotation = Quaternion.identity;
-
-        // deixa no mundo (não some ao mover inimigo)
-        blood.transform.SetParent(null);
-
-        // força posição exata do impacto
-        blood.transform.position = hitPoint;
-
-        ParticleSystem ps = blood.GetComponent<ParticleSystem>();
-
-        if (ps != null)
-        {
-            ps.Play();
-
-            Destroy(blood, ps.main.duration + ps.main.startLifetime.constantMax);
-        }
-        else
-        {
-            Destroy(blood, 2f);
-        }
-
-        if (_currentLife <= 0)
-        {
-            Destroy(gameObject);
-        }
-    }
+    private static int playerHits = 0;
 
     void Start()
     {
-        _currentLife = _lifeMax;
+        currentLife = lifeMax;
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObj != null)
         {
-            _player = playerObj.transform;
-            _playerRb = playerObj.GetComponent<Rigidbody>();
+            player = playerObj.transform;
+            playerRb = playerObj.GetComponent<Rigidbody>();
         }
 
-        if (_defeatScreen != null)
-            _defeatScreen.SetActive(false);
+        if (defeatScreen != null)
+            defeatScreen.SetActive(false);
     }
 
     void Update()
     {
-        if (_player == null)
-            return;
+        if (player == null) return;
 
         float distance =
-            Vector3.Distance(transform.position, _player.position);
+            Vector3.Distance(transform.position, player.position);
 
-        // Detecta o player uma vez
-        if (distance <= _followDistance)
+        if (distance <= followDistance)
+            hasSeenPlayer = true;
+
+        if (!hasSeenPlayer) return;
+
+        FollowPlayer();
+    }
+
+    private void FollowPlayer()
+    {
+        // DIREÃ‡ÃƒO
+        Vector3 direction =
+            (player.position - transform.position).normalized;
+
+        // MOVIMENTO
+        Vector3 newPosition =
+            transform.position + direction * speed * Time.deltaTime;
+
+        newPosition.y = transform.position.y;
+
+        transform.position = newPosition;
+
+        // ROTAÃ‡ÃƒO SUAVE
+        Vector3 lookDirection =
+            player.position - transform.position;
+
+        lookDirection.y = 0f;
+
+        if (lookDirection != Vector3.zero)
         {
-            _hasSeenPlayer = true;
-        }
+            Quaternion targetRotation =
+                Quaternion.LookRotation(lookDirection);
 
-        // Segue para sempre
-        if (_hasSeenPlayer)
-        {
-            Vector3 direction =
-                (_player.position - transform.position).normalized;
-
-            Vector3 newPosition =
-                transform.position + direction * _speed * Time.deltaTime;
-
-            // Impede o inimigo de subir/descer
-            newPosition.y = transform.position.y;
-
-            transform.position = newPosition;
-
-            // Faz o inimigo olhar para o player
-            Vector3 targetPosition = new Vector3(
-                _player.position.x,
-                transform.position.y,
-                _player.position.z
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime
             );
-
-            transform.LookAt(targetPosition);
-
-            // Corrige inimigo andando de costas
-            transform.Rotate(0, 180f, 0);
         }
+    }
+
+    public void Hitted(float damage, Vector3 hitPoint)
+    {
+        currentLife -= damage;
+
+        SpawnBlood(hitPoint);
+
+        if (currentLife <= 0)
+            Die();
+    }
+
+    private void SpawnBlood(Vector3 hitPoint)
+    {
+        if (bloodEffect == null) return;
+
+        // Faz o sangue olhar para o player
+        Vector3 directionToPlayer =
+            (player.position - hitPoint).normalized;
+
+        Quaternion rotation =
+            Quaternion.LookRotation(directionToPlayer);
+
+        GameObject blood = Instantiate(
+            bloodEffect,
+            hitPoint,
+            rotation
+        );
+
+        // Faz acompanhar o inimigo
+        blood.transform.SetParent(transform);
+
+        // MantÃ©m posiÃ§Ã£o correta
+        blood.transform.position = hitPoint;
+
+        ParticleSystem ps =
+            blood.GetComponent<ParticleSystem>();
+
+        if (ps != null)
+        {
+            ps.Play();
+
+            Destroy(
+                blood,
+                ps.main.duration +
+                ps.main.startLifetime.constantMax
+            );
+        }
+        else
+        {
+            Destroy(blood, 2f);
+        }
+    }
+
+    private void Die()
+    {
+        Destroy(gameObject);
     }
 
     private void OnCollisionStay(Collision collision)
@@ -133,38 +155,39 @@ public class EnemyStatus : MonoBehaviour, IShootable
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
-        // Cooldown entre ataques
-        if (Time.time < _lastAttackTime + _attackCooldown)
+        if (Time.time < lastAttackTime + attackCooldown)
             return;
 
-        _lastAttackTime = Time.time;
+        lastAttackTime = Time.time;
 
-        // Knockback no player
-        if (_playerRb != null)
+        AttackPlayer();
+    }
+
+    private void AttackPlayer()
+    {
+        // Knockback
+        if (playerRb != null)
         {
             Vector3 knockbackDir =
-                (_player.position - transform.position).normalized;
+                (player.position - transform.position).normalized;
 
             knockbackDir.y = 0.5f;
 
-            _playerRb.AddForce(
-                knockbackDir * _knockbackForce,
+            playerRb.AddForce(
+                knockbackDir * knockbackForce,
                 ForceMode.Impulse
             );
         }
 
-        // Conta hits
-        _playerHits++;
+        playerHits++;
 
-        Debug.Log("Player atingido: " + _playerHits);
+        Debug.Log("Player atingido: " + playerHits);
 
-        // Game Over após 3 hits
-        if (_playerHits >= 3)
+        // Game Over
+        if (playerHits >= 3)
         {
-            if (_defeatScreen != null)
-            {
-                _defeatScreen.SetActive(true);
-            }
+            if (defeatScreen != null)
+                defeatScreen.SetActive(true);
 
             Time.timeScale = 0f;
         }
