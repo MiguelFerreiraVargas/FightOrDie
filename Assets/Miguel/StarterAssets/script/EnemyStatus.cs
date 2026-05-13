@@ -32,23 +32,33 @@ public class EnemyStatus : MonoBehaviour, IShootable
     // segue para sempre
     private bool _hasSeenPlayer = false;
 
-    public void Hitted(float damage, Vector3 shootPoint)
+    public void Hitted(float damage, Vector3 hitPoint)
     {
         _currentLife -= damage;
 
-        // Direção do sangue
-        Vector3 direction =
-            (shootPoint - transform.position).normalized;
-
-        // Cria efeito no ponto do tiro
         GameObject blood = Instantiate(
             _bloodEffect,
-            shootPoint,
-            Quaternion.LookRotation(direction)
+            hitPoint,
+            Quaternion.identity
         );
 
-        // Destroi o efeito depois de alguns segundos
-        Destroy(blood, 2f);
+        // garante que aparece antes de qualquer coisa
+        blood.transform.position = hitPoint;
+
+        // NÃO deixa herdar rotação nem escala bugada
+        blood.transform.SetParent(null);
+
+        // força o Particle System a tocar
+        ParticleSystem ps = blood.GetComponent<ParticleSystem>();
+        if (ps != null)
+        {
+            ps.Play();
+            Destroy(blood, ps.main.duration);
+        }
+        else
+        {
+            Destroy(blood, 2f);
+        }
 
         if (_currentLife <= 0)
         {
@@ -101,13 +111,16 @@ public class EnemyStatus : MonoBehaviour, IShootable
             transform.position = newPosition;
 
             // Faz o inimigo olhar para o player
-            transform.LookAt(
-                new Vector3(
-                    _player.position.x,
-                    transform.position.y,
-                    _player.position.z
-                )
+            Vector3 targetPosition = new Vector3(
+                _player.position.x,
+                transform.position.y,
+                _player.position.z
             );
+
+            transform.LookAt(targetPosition);
+
+            // Corrige inimigo andando de costas
+            transform.Rotate(0, 180f, 0);
         }
     }
 
