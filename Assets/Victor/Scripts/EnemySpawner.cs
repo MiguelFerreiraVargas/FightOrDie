@@ -1,54 +1,125 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
     [Header("Enemy")]
-    [SerializeField] private GameObject _enemyPrefab;
+    [SerializeField] private GameObject enemyPrefab;
 
-    [Header("Spawn")]
-    [SerializeField] private Transform[] _spawnPoints;
+    [Header("Spawn Points")]
+    [SerializeField] private Transform[] spawnPoints;
 
-    [SerializeField] private int _maxEnemiesToSpawn = 20;
-    [SerializeField] private float _spawnCooldown = 3f;
+    [Header("Spawn Config")]
+    [SerializeField] private int maxTotalEnemies = 20;
+    [SerializeField] private int maxEnemiesAlive = 4;
+    [SerializeField] private float spawnCooldown = 3f;
 
-    private int _spawnedEnemies = 0;
+    // Controle
+    private int totalSpawnedEnemies = 0;
+
+    // Lista de inimigos vivos
+    private readonly List<GameObject> aliveEnemies =
+        new List<GameObject>();
 
     void Start()
     {
         InvokeRepeating(
             nameof(SpawnEnemy),
             0f,
-            _spawnCooldown
+            spawnCooldown
         );
     }
 
     void SpawnEnemy()
     {
-        // Para quando atingir o limite
-        if (_spawnedEnemies >= _maxEnemiesToSpawn)
+        // Limite total
+        if (totalSpawnedEnemies >= maxTotalEnemies)
         {
             CancelInvoke(nameof(SpawnEnemy));
             return;
         }
 
-        // Verifica se existem spawn points
-        if (_spawnPoints.Length == 0)
+        // Limite vivos
+        CleanEnemyList();
+
+        if (aliveEnemies.Count >= maxEnemiesAlive)
+            return;
+
+        // Sem spawn points
+        if (spawnPoints.Length == 0)
         {
-            Debug.LogWarning("Nenhum Spawn Point definido!");
+            Debug.LogWarning(
+                "EnemySpawner: nenhum Spawn Point definido."
+            );
+
             return;
         }
 
-        // Escolhe posição aleatória
-        Transform randomSpawn =
-            _spawnPoints[Random.Range(0, _spawnPoints.Length)];
+        // Procura spawn livre
+        List<Transform> freeSpawnPoints =
+            GetFreeSpawnPoints();
 
-        // Spawna inimigo
-        Instantiate(
-            _enemyPrefab,
+        // Nenhum livre
+        if (freeSpawnPoints.Count == 0)
+            return;
+
+        // Escolhe spawn aleatÃ³rio
+        Transform randomSpawn =
+            freeSpawnPoints[
+                Random.Range(0, freeSpawnPoints.Count)
+            ];
+
+        // Cria inimigo
+        GameObject enemy = Instantiate(
+            enemyPrefab,
             randomSpawn.position,
             randomSpawn.rotation
         );
 
-        _spawnedEnemies++;
+        // Adiciona na lista
+        aliveEnemies.Add(enemy);
+
+        totalSpawnedEnemies++;
+    }
+
+    private List<Transform> GetFreeSpawnPoints()
+    {
+        List<Transform> freePoints =
+            new List<Transform>();
+
+        foreach (Transform spawnPoint in spawnPoints)
+        {
+            bool occupied = false;
+
+            foreach (GameObject enemy in aliveEnemies)
+            {
+                if (enemy == null)
+                    continue;
+
+                float distance =
+                    Vector3.Distance(
+                        enemy.transform.position,
+                        spawnPoint.position
+                    );
+
+                // Se tiver inimigo muito perto
+                if (distance < 2f)
+                {
+                    occupied = true;
+                    break;
+                }
+            }
+
+            if (!occupied)
+                freePoints.Add(spawnPoint);
+        }
+
+        return freePoints;
+    }
+
+    // Remove inimigos destruÃ­dos da lista
+    private void CleanEnemyList()
+    {
+        aliveEnemies.RemoveAll(enemy => enemy == null);
     }
 }

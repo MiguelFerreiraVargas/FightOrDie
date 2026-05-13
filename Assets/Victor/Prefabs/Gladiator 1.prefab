@@ -1056,7 +1056,7 @@ MeshCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 5
   m_Convex: 1
@@ -1074,12 +1074,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc8f2ee1d2bed747adfbf32a066a63a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatus
-  lifeMax: 2
-  followDistance: 10
-  speed: 3
+  lifeMax: 3
+  followDistance: 25
+  speed: 5.5
+  rotationSpeed: 5
   knockbackForce: 7
   attackCooldown: 1
   bloodEffect: {fileID: 1000013355911406, guid: d32aa916f50cac94db11e6f19821a58f, type: 3}
+  bloodSize: 3.5
   defeatScreen: {fileID: 0}
 --- !u!1 &3334076722692257570
 GameObject:
