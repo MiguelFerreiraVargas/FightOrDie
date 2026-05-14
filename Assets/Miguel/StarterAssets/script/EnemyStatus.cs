@@ -1,4 +1,6 @@
 using UnityEngine;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class EnemyStatus : MonoBehaviour, IShootable
 {
@@ -153,6 +155,8 @@ public class EnemyStatus : MonoBehaviour, IShootable
 
     private void Die()
     {
+        GameManager.Instance.AddKill();
+
         Destroy(gameObject);
     }
 
