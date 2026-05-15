@@ -1,6 +1,5 @@
 using UnityEngine;
-using TMPro;
-using UnityEngine.SceneManagement;
+using StarterAssets;
 
 public class EnemyStatus : MonoBehaviour, IShootable
 {
@@ -15,17 +14,14 @@ public class EnemyStatus : MonoBehaviour, IShootable
 
     [Header("Ataque")]
     [SerializeField] private float knockbackForce = 7f;
+    [SerializeField] private float attackDistance = 2f;
     [SerializeField] private float attackCooldown = 1f;
 
     [Header("Efeitos")]
     [SerializeField] private GameObject bloodEffect;
     [SerializeField] private float bloodSize = 2f;
 
-    [Header("UI")]
-    [SerializeField] private GameObject defeatScreen;
-
     private Transform player;
-    private Rigidbody playerRb;
 
     private bool hasSeenPlayer;
     private float lastAttackTime;
@@ -34,18 +30,17 @@ public class EnemyStatus : MonoBehaviour, IShootable
 
     void Start()
     {
+        playerHits = 0;
+
         currentLife = lifeMax;
 
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        GameObject playerObj =
+            GameObject.FindGameObjectWithTag("Player");
 
         if (playerObj != null)
         {
             player = playerObj.transform;
-            playerRb = playerObj.GetComponent<Rigidbody>();
         }
-
-        if (defeatScreen != null)
-            defeatScreen.SetActive(false);
     }
 
     void Update()
@@ -62,15 +57,24 @@ public class EnemyStatus : MonoBehaviour, IShootable
         if (!hasSeenPlayer) return;
 
         FollowPlayer();
+
+        // ATAQUE
+        if (distance <= attackDistance)
+        {
+            if (Time.time >= lastAttackTime + attackCooldown)
+            {
+                lastAttackTime = Time.time;
+
+                AttackPlayer();
+            }
+        }
     }
 
     private void FollowPlayer()
     {
-        // DIREÇÃO
         Vector3 direction =
             (player.position - transform.position).normalized;
 
-        // MOVIMENTO
         Vector3 newPosition =
             transform.position + direction * speed * Time.deltaTime;
 
@@ -78,7 +82,6 @@ public class EnemyStatus : MonoBehaviour, IShootable
 
         transform.position = newPosition;
 
-        // ROTAÇÃO SUAVE
         Vector3 lookDirection =
             player.position - transform.position;
 
@@ -111,7 +114,6 @@ public class EnemyStatus : MonoBehaviour, IShootable
     {
         if (bloodEffect == null) return;
 
-        // Faz o sangue olhar para o player
         Vector3 directionToPlayer =
             (player.position - hitPoint).normalized;
 
@@ -124,14 +126,11 @@ public class EnemyStatus : MonoBehaviour, IShootable
             rotation
         );
 
-        // Tamanho do sangue
         blood.transform.localScale =
             Vector3.one * bloodSize;
 
-        // Faz acompanhar o inimigo
         blood.transform.SetParent(transform);
 
-        // Mantém posição correta
         blood.transform.position = hitPoint;
 
         ParticleSystem ps =
@@ -160,47 +159,39 @@ public class EnemyStatus : MonoBehaviour, IShootable
         Destroy(gameObject);
     }
 
-    private void OnCollisionStay(Collision collision)
-    {
-        if (!collision.gameObject.CompareTag("Player"))
-            return;
-
-        // Cooldown entre ataques
-        if (Time.time < lastAttackTime + attackCooldown)
-            return;
-
-        lastAttackTime = Time.time;
-
-        AttackPlayer();
-    }
-
     private void AttackPlayer()
     {
-        // Knockback
-        if (playerRb != null)
+        // KNOCKBACK
+        FirstPersonController controller =
+            player.GetComponent<FirstPersonController>();
+
+        if (controller != null)
         {
             Vector3 knockbackDir =
-                (player.position - transform.position).normalized;
+                -player.forward;
 
-            knockbackDir.y = 0.5f;
+            knockbackDir.y = 0.2f;
 
-            playerRb.AddForce(
-                knockbackDir * knockbackForce,
-                ForceMode.Impulse
-            );
+            knockbackDir.Normalize();
+
+            controller.KnockbackVelocity =
+                knockbackDir * knockbackForce;
         }
 
         playerHits++;
 
         Debug.Log("Player atingido: " + playerHits);
 
-        // Game Over
-        if (playerHits >= 3)
+        // GAME OVER
+        if (playerHits >= 4)
         {
-            if (defeatScreen != null)
-                defeatScreen.SetActive(true);
+            FirstPersonController movement =
+                player.GetComponent<FirstPersonController>();
 
-            Time.timeScale = 0f;
+            if (movement != null)
+                movement.enabled = false;
+
+            DefeatManager.Instance.ShowDefeat();
         }
     }
 }

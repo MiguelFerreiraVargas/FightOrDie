@@ -469,7 +469,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &275239185
 RectTransform:
   m_ObjectHideFlags: 0
@@ -605,7 +605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   currentKills: 0
-  killsToWin: 20
+  killsToWin: 18
   killText: {fileID: 1441628929}
   victoryScreen: {fileID: 1092253671}
 --- !u!4 &320900649
@@ -1699,7 +1699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf4500d2a68d2bf4ebbac7fa4725f44d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PistolaHitscan
-  damage: 1
+  damage: 1.5
   range: 100
   fireRate: 0.2
   cam: {fileID: 4153432119749476975}
@@ -1912,6 +1912,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 925777404}
   m_CullTransparentMesh: 1
+--- !u!1 &1011556406
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1011556408}
+  - component: {fileID: 1011556407}
+  m_Layer: 0
+  m_Name: DefeatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1011556407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011556406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1ef819a648214a4fb6376fb65570efd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DefeatManager
+  defeatScreen: {fileID: 275239184}
+--- !u!4 &1011556408
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011556406}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 400.7645, y: 1.40823, z: 366.4274}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1040511129
 GameObject:
   m_ObjectHideFlags: 0
@@ -2641,8 +2686,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -283, y: 140}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -197, y: 164}
+  m_SizeDelta: {x: 304.5859, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1441628928
 CanvasRenderer:
@@ -2682,7 +2727,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4278190335
-  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
+  m_fontColor: {r: 0.5188679, g: 0.007342457, b: 0.007342457, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2705,7 +2750,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -7587,6 +7632,7 @@ MonoBehaviour:
   CinemachineCameraTarget: {fileID: 7835639458379333358}
   TopClamp: 89
   BottomClamp: -89
+  KnockbackVelocity: {x: 0, y: 0, z: 0}
 --- !u!1 &2471301536291882933
 GameObject:
   m_ObjectHideFlags: 0
@@ -18420,3 +18466,4 @@ SceneRoots:
   - {fileID: 906890103}
   - {fileID: 320900649}
   - {fileID: 319690660}
+  - {fileID: 1011556408}

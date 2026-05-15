@@ -59,6 +59,8 @@ namespace StarterAssets
 		private float _rotationVelocity;
 		private float _verticalVelocity;
 		private float _terminalVelocity = 53.0f;
+		[HideInInspector]
+		public Vector3 KnockbackVelocity;
 
 		// timeout deltatime
 		private float _jumpTimeoutDelta;
@@ -194,8 +196,26 @@ namespace StarterAssets
 				inputDirection = transform.right * _input.move.x + transform.forward * _input.move.y;
 			}
 
-			// move the player
-			_controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+			Vector3 moveDirection =
+    			inputDirection.normalized * _speed;
+
+			// Adiciona knockback
+			moveDirection += KnockbackVelocity;
+
+			Vector3 finalMove =
+    			moveDirection +
+    			KnockbackVelocity;
+
+			finalMove.y = _verticalVelocity;
+
+			_controller.Move(finalMove * Time.deltaTime);
+
+			// Reduz knockback gradualmente
+			KnockbackVelocity = Vector3.MoveTowards(
+    			KnockbackVelocity,
+    			Vector3.zero,
+    			15f * Time.deltaTime
+			);
 		}
 
 		private void JumpAndGravity()

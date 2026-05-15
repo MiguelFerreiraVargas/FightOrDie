@@ -926,7 +926,8 @@ GameObject:
   - component: {fileID: 1668493798222527157}
   - component: {fileID: 4440858254457957829}
   - component: {fileID: 7524744332204544450}
-  - component: {fileID: 518726103506103408}
+  - component: {fileID: 6911060066929373199}
+  - component: {fileID: 2272406065370171074}
   m_Layer: 6
   m_Name: Gladiator 1
   m_TagString: Untagged
@@ -1062,7 +1063,34 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 4235972392318167954, guid: eecee570b3bc15c4faae3cd5626ea37d, type: 3}
---- !u!114 &518726103506103408
+--- !u!54 &6911060066929373199
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3091057583649187154}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
+--- !u!114 &2272406065370171074
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1078,11 +1106,11 @@ MonoBehaviour:
   followDistance: 25
   speed: 5.5
   rotationSpeed: 5
-  knockbackForce: 7
-  attackCooldown: 1
+  knockbackForce: 10
+  attackDistance: 2
+  attackCooldown: 1.5
   bloodEffect: {fileID: 1000013355911406, guid: d32aa916f50cac94db11e6f19821a58f, type: 3}
-  bloodSize: 3.5
-  defeatScreen: {fileID: 0}
+  bloodSize: 3
 --- !u!1 &3334076722692257570
 GameObject:
   m_ObjectHideFlags: 0
